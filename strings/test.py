@@ -1,1 +1,4 @@
-print(f'hello')
+string = ''
+s = string or '<default value>'
+print(s) #'<default value>'
+
