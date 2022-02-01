@@ -10,7 +10,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 cache_folder = os.path.join(dir_path, 'cache')
 zip_file = os.path.abspath("files/data.zip")
 
-# cache_folder = f'{os.getcwd}/files/cache' - niet vindbaar op alle systemen - gebruik os.path.join(cwd, 'cache')
+# cache_folder = f'{os.getcwd}/files/cache' - niet vindbaar op alle systemen - gebruik os.path.join(cwd, 'cache') ## gedaan
 
 # beter geen globale variabele voor cache_folder (als daar een fout in zit, gaan alle functies fout) ## toch globale variabele aangehouden voor cache_folder en zip_file: functie 2 is dan beter leesbaar dan met een uitgeschreven pad als argument
 
@@ -27,7 +27,7 @@ def clean_cache():
             except OSError:
                 print("Failed to delete %s. Reason: %s" % (file_path, e))
     else:
-        os.mkdir(cache_folder)
+        os.mkdir(cache_folder) # geen OSError ## try - except verwijderd 
 clean_cache()
 
 
