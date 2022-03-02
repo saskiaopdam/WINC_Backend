@@ -7,13 +7,18 @@ SuperPy is a program written in Python that will be used by a supermarket to kee
 3. Interact with the program through the command line
 4. Available commands:
 
-- "command to set the date of 'today'"
-- "command to record the buying of products on certain dates"
-- "command to record the selling of products on certain dates"
+- advance: "command to set the date of 'today'"
+- buy: "command to record the buying of products on certain dates"
+- sell: "command to record the selling of products on certain dates"
 - "command to report revenue over specified time periods"
 - "command to report profit over specified time periods"
 - "command to export selection of data to csv files"
 - "commands to execute 2 additional features"
+
+5. Get help:
+
+- Programme help: python super.py -h
+- Command help: python super.py <command name> -h
 
 Examples:
 
