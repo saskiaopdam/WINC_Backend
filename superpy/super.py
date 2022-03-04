@@ -20,31 +20,47 @@ yesterday = today + timedelta(-1)
 tomorrow = today + timedelta(1)
 
 
-def advance(num_days):
-    advanced_date = today + timedelta(num_days)
+# sub-command functions:
+
+# def advance(num_days):
+#     advanced_date = today + timedelta(num_days)
+#     print(
+#         f"OK\nThe current date is {today}.\nThe advanced date is {advanced_date}.")
+def advance(args):
+    advanced_date = today + timedelta(args.days)
     print(
         f"OK\nThe current date is {today}.\nThe advanced date is {advanced_date}.")
 
 
-def buy(product_name, buy_date, buy_price, expiration_date, count):
+# def buy(product_name, buy_date, buy_price, expiration_date, count):
+#     with open('buy.csv', 'a') as csvfile:
+#         data = [product_name, buy_date, buy_price, expiration_date, count]
+#         buy_id = id(data)
+#         writer = csv.writer(csvfile)
+#         writer.writerow([buy_id] + data)
+
+#     print(
+#         f"OK\n'{buy_id} {product_name} {buy_date} {buy_price} {expiration_date} {count}' now added to buy.csv.")
+def buy(args):
     with open('buy.csv', 'a') as csvfile:
-        data = [product_name, buy_date, buy_price, expiration_date, count]
+        data = [args.name, args.date,
+                args.price, args.exp, args.count]
         buy_id = id(data)
         writer = csv.writer(csvfile)
         writer.writerow([buy_id] + data)
 
     print(
-        f"OK\n'{buy_id} {product_name} {buy_date} {buy_price} {expiration_date} {count}' now added to buy.csv.")
+        f"OK\n'{buy_id} {args.name} {args.date} {args.price} {args.exp} {args.count}' now added to buy.csv.")
 
 
-def report(data, date):
+def report(args):
     # if date == "yesterday":
     #     print(data, yesterday)
     # elif date == "today":
     #     print(data, today)
     # elif date == "tomorrow":
     #     print(data, tomorrow)
-    if date == "yesterday":
+    if args.result == "cost" and args.date == "yesterday":
         with open('buy.csv') as csvfile:
             reader = csv.DictReader(csvfile)
             row_count = 0
@@ -64,43 +80,62 @@ def report(data, date):
 
 def main():
 
-    # top-level parser
-    parser = argparse.ArgumentParser(
-        prog='SuperPy', description='Keep track of the supermarket inventory and produce reports on various kinds of data')
-    subparsers = parser.add_subparsers(dest='command')
+    # create the top-level parser
+    def parse_args(args=sys.argv[1:]):
+        parser = argparse.ArgumentParser(
+            description="Keep track of supermarket inventory and produce reports on various kinds of data.")
+        subparsers = parser.add_subparsers()
 
-    # parser for the "advance" command
-    advance_parser = subparsers.add_parser(
-        'advance', help='advance the current date with a number of days')
-    advance_parser.add_argument('--days', type=int, help='number of days')
+        add_advance_subparser(subparsers)
+        add_buy_subparser(subparsers)
+        add_report_subparser(subparsers)
 
-    # parser for the "buy" command
-    buy_parser = subparsers.add_parser(
-        'buy', help='record information about a bought product')
-    buy_parser.add_argument('--name', help='product name', required=True)
-    buy_parser.add_argument('--date', help='buy date', required=True)
-    buy_parser.add_argument('--price', type=float,
-                            help='buy price', required=True)
-    buy_parser.add_argument('--exp', help='expiration date', required=True)
-    buy_parser.add_argument('--count', type=int,
-                            help='product count', required=True)
+        return parser.parse_args(args)
 
-    # parser for the "report" command
-    report_parser = subparsers.add_parser(
-        'report', help='print a report to the terminal')
-    report_parser.add_argument('--data', help='data to be printed')
-    report_parser.add_argument(
-        '--date', help='selected date', choices=["yesterday", "today", "tomorrow"])
+    # create the parser for the "advance" command
+    def add_advance_subparser(subparsers):
+        parser = subparsers.add_parser(
+            'advance', help='advance the current date with a number of days')
+        parser.add_argument('days', type=int,
+                            help='number of days')
+        # parser.set_defaults(command='advance')
+        parser.set_defaults(func=advance)
 
-    args = parser.parse_args()
+    # create the parser for the "buy" command
+    def add_buy_subparser(subparsers):
+        parser = subparsers.add_parser(
+            'buy', help='record information about a bought product')
+        parser.add_argument('name', help='product name')
+        parser.add_argument('date', help='buy date')
+        parser.add_argument('price', type=float,
+                            help='buy price')
+        parser.add_argument('exp', help='expiration date')
+        parser.add_argument('count', type=int,
+                            help='product count')
+        # parser.set_defaults(command='buy')
+        parser.set_defaults(func=buy)
 
-    if args.command == 'advance':
-        advance(args.days)
-    if args.command == 'buy':
-        buy(args.name, args.date,
-            args.price, args.exp, args.count)
-    if args.command == 'report':
-        report(args.data, args.date)
+    # create the parser for the "report" command
+    def add_report_subparser(subparsers):
+        parser = subparsers.add_parser(
+            'report', help='print a report to the terminal')
+        parser.add_argument(
+            'result', choices=["cost", "revenue", "profit"], help='result to be printed')
+        parser.add_argument(
+            'date', choices=["yesterday", "today", "tomorrow"], help='selected date')
+        # parser.set_defaults(command='report')
+        parser.set_defaults(func=report)
+
+    args = parse_args()
+    args.func(args)
+
+    # if args.command == 'advance':
+    #     advance(args.days)
+    # if args.command == 'buy':
+    #     buy(args.name, args.date,
+    #         args.price, args.exp, args.count)
+    # if args.command == 'report':
+    #     report(args.result, args.date)
 
 
 if __name__ == "__main__":

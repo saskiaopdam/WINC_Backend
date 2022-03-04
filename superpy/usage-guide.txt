@@ -1,6 +1,6 @@
 SuperPy Usage Guide
 
-SuperPy is a program written in Python that will be used by a supermarket to keep track of their inventory and produce reports. The user will interact with the program through the command-line.
+SuperPy is a program written in Python that will be used by a supermarket to keep track of their inventory and produce reports. The user will interact with the program through the command-line. Reports can be printed on 3 results: costs, revenue and profit, and for 3 different dates: yesterday, today, and a period of more than one day.
 
 1. Open a CLI
 2. Make sure you have Python installed
