@@ -1,0 +1,12 @@
+3 technical plusses:
+
+- description
+- which problem they solve
+- why you chose this implementation
+
+- easy to use command line tool with clear help for each subcommand and its arguments
+
+- option to print reports to the terminal or to save them in a file (available formats: csv, excel)
+
+- code snippets allowed for illustration
+
