@@ -1,5 +1,5 @@
 import csv
-from date import yesterday, today
+from date_functions import yesterday, today
 
 
 def report(args):
@@ -24,18 +24,20 @@ def report(args):
     print_heading()
 
     def print_data():
-
+        # imlement choice of stdout (terminal or pdf)
         def print_inventory():
             with open('buy.csv') as csvfile:
                 reader = csv.DictReader(csvfile)
                 row_count = 0
                 match_count = 0
+
                 for row in reader:
                     row_count += 1
                     prod_name = row['product_name']
                     count = row['count']
                     buy_price = row['buy_price']
                     exp_date = row['expiration_date']
+
                     if row['buy_date'] == str(date):
                         match_count += 1
                         print(

@@ -1,16 +1,10 @@
 # Imports
-"""
-- modules from the python standard library
-- functions from programme files
-"""
 import argparse
 import sys
-from datetime import date
 
-from utils import advance, buy, report, valid_date
-# from report import report
-# from date import valid_date, advance
-# from trade import buy
+from report_functions import report
+from date_functions import valid_date, advance
+from trade_functions import buy
 
 # Do not change these lines.
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
@@ -43,12 +37,12 @@ def main():
     # create the parser for the "buy" command
     def add_buy_subparser(subparsers):
         parser = subparsers.add_parser(
-            'buy', help='record information about a bought product')
+            'buy', help='record information about a purchased product')
         parser.add_argument('name', help='product name')
         parser.add_argument('buy_date', type=valid_date,
-                            help='buy date - format: YYYY-MM-DD')
+                            help='purchase date - format: YYYY-MM-DD')
         parser.add_argument('price', type=float,
-                            help='buy price')
+                            help='purchase price')
         parser.add_argument(
             'exp_date', type=valid_date, help='expiration date - format: YYYY-MM-DD')
         parser.add_argument('count', type=int,
@@ -69,7 +63,7 @@ def main():
 
     # parse_args()
     if len(sys.argv[1:]) == 0:
-        print("No arguments to process.")
+        print("Add some arguments to process.")
     else:
         args = parse_args()
         args.func(args)
