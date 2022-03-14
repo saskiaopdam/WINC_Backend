@@ -7,9 +7,9 @@ def get_product_list():
         reader = csv.DictReader(csvfile)
 
         for row in reader:
-            product_name = row['product_name']
-            if product_name not in product_list:
-                product_list.append(product_name)
+            product = row['product']
+            if product not in product_list:
+                product_list.append(product)
     return product_list
 
 
