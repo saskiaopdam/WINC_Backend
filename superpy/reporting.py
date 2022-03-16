@@ -1,7 +1,7 @@
 # Imports
 import csv
 
-from date_setting import yesterday, today
+from setting_date import yesterday, today
 from products import product_list
 
 
@@ -48,6 +48,10 @@ def report(args):
                         return total_purchase_count
 
                     total_purchase_count = get_total_purchase_count()
+
+                    # calculate how many products were sold untill the given day
+
+                    # calculate inventory: total amount bought - total amount sold
 
                     print(
                         f"{product}: {total_purchase_count}")

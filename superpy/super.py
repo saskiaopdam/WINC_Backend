@@ -1,11 +1,13 @@
 # Imports
 import argparse
-import sys
+from argparse import ArgumentParser
 
-from date_setting import set_date
+from datetime import date, timedelta
+
+# from setting_date import set_date
 from recording import record
 from reporting import report
-from purchase import buy
+# from purchase import buy
 
 # Do not change these lines.
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
@@ -15,20 +17,77 @@ __human_name__ = "superpy"
 # Your code below this line.
 def main():
 
-    # create the top-level parser
-    def parse_args(args=sys.argv[1:]):
-        parser = argparse.ArgumentParser(
-            description="Command-line tool for keeping track of supermarket inventory.")
-        subparsers = parser.add_subparsers()
+    # create a parser and subparsers
+    parser = ArgumentParser(
+        usage="python %(prog)s [-h | --help] <command> <arguments>", description="The following options and subcommands are available in SuperPy:", epilog="For help on a specific subcommand, see 'python super.py <command> -h'.", formatter_class=argparse.RawTextHelpFormatter)
+    subparsers = parser.add_subparsers(
+        title="subcommands", prog="python super.py", dest="subcommand")
 
-        add_set_date_subparser(subparsers)
-        add_record_subparser(subparsers)
-        # add_buy_subparser(subparsers)
-        add_report_subparser(subparsers)
+    # define a decorator to turn a function into a subcommand
+    def subcommand(subparser_args=[], parent=subparsers):
+        def decorator(func):
+            parser = parent.add_parser(
+                func.__name__, description=func.__doc__, help=func.__doc__)
+            for args, kwargs in subparser_args:
+                # print(f"args: {args}\nkwargs: {kwargs}")
+                parser.add_argument(*args, **kwargs)
+            parser.set_defaults(func=func)
+        return decorator
 
-        return parser.parse_args(args)
+    # helper function taking arguments
+    def argument(*args, **kwargs):
+        return args, kwargs
+
+    # @subcommand([argument("No arguments", help="No arguments")])
+    @subcommand()
+    def nothing(args):
+        """print 'Nothing special!'"""
+        print("Nothing special!")
+
+    @subcommand()
+    def something(args):
+        """print 'Something special!'"""
+        print("Something special!")
+
+    @subcommand([argument("-d", help="debug mode", action="store_true")])
+    # e.g. args = ("-d",) kwargs = {help="debug mode", action="store_true"}
+    def test(args):
+        """print all arguments"""
+        print(args)
+
+    @subcommand([argument("-f", "--filename", help="a thing with a filename")])
+    def filename(args):
+        """print filename"""
+        print(args.filename)
+
+    @subcommand([argument("name", help="name")])
+    def name(args):
+        """print name"""
+        print(args.name)
+
+    @subcommand()
+    def today(args):
+        """print today's date"""
+        today = date.today()
+        print(today)
+
+    @subcommand()
+    def yesterday(args):
+        """print yesterday's date"""
+        today = date.today()
+        yesterday = today - timedelta(1)
+        print(yesterday)
+
+    @subcommand([argument("num_days", type=int, help="number of days, positive or negative"), argument("arg2", type=int, help="arg2 help")])
+    def set_today(args):
+        """set current date +/- a number of days"""
+        today = date.today()
+        num_days = args.num_days
+        new_today = today + timedelta(num_days)
+        print(new_today)
 
     # create the parser for the "set_date" command
+
     def add_set_date_subparser(subparsers):
         parser = subparsers.add_parser(
             'set_date', description='Command to set the current date.', help='set current date')
@@ -74,22 +133,23 @@ def main():
         #     '--stdout', choices=["terminal", "pdf"], help='standard output to terminal or pdf')
         parser.set_defaults(func=report)
 
-    # parse_args()
-    if len(sys.argv[1:]) == 0:
-        print(
-            "SuperPy running. Please enter a command. For help, enter: 'python super.py -h'.")
+    # dispatch the subcommand
+    args = parser.parse_args()
+    if args.subcommand is None:
+        parser.print_help()
     else:
-        args = parse_args()
         args.func(args)
 
 
 if __name__ == "__main__":
     main()
 
-# Tested function
+# Tested function - running tests with pytest
 
 
 def function_X():
     return None
 
-# Python classes
+# Python classes - debugging
+
+# Extra - rich module, matplot
