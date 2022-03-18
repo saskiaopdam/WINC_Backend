@@ -2,7 +2,6 @@
 import csv
 
 from setting_date import yesterday, today
-from products import product_list
 
 
 def report(args):

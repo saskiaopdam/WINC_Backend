@@ -1,13 +1,10 @@
 # Imports
 import argparse
-from argparse import ArgumentParser
-
 from datetime import date, timedelta
 
+from helper_functions import get_products, valid_date, record_data
 # from setting_date import set_date
-from recording import record
-from reporting import report
-# from purchase import buy
+# from reporting import report
 
 # Do not change these lines.
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
@@ -17,54 +14,52 @@ __human_name__ = "superpy"
 # Your code below this line.
 def main():
 
-    # create a parser and subparsers
-    parser = ArgumentParser(
-        usage="python %(prog)s [-h | --help] <command> <arguments>", description="The following options and subcommands are available in SuperPy:", epilog="For help on a specific subcommand, see 'python super.py <command> -h'.", formatter_class=argparse.RawTextHelpFormatter)
-    subparsers = parser.add_subparsers(
-        title="subcommands", prog="python super.py", dest="subcommand")
+    # create top-level parser for the command-line arguments
+    def create_parser():
+        parser = argparse.ArgumentParser(
+            usage="python %(prog)s [option] <command> [arguments]", description="The following options and commands are available in SuperPy:", epilog="For help on a specific command, see 'python super.py <command> -h'.")
+        return parser
+    parser = create_parser()
 
-    # define a decorator to turn a function into a subcommand
-    def subcommand(subparser_args=[], parent=subparsers):
-        def decorator(func):
+    # create sub-level parsers for the subcommands
+    def create_subparsers():
+        subparsers = parser.add_subparsers(
+            title="commands", prog="python super.py", dest="subcommand", metavar="available actions to set time, record data and report on data")
+        # subparsers = parser.add_subparsers(
+        #     title="commands", description="Available actions", prog="python super.py", dest="subcommand", metavar="metavar", help="subcommand help")
+        return subparsers
+    subparsers = create_subparsers()
+
+    # define decorator to turn a function into a subcommand
+    """
+    Each function is associated with a subcommand with the same name.
+    This way, when entering e.g. 'nothing' on the command-line, the function nothing() is executed.
+    """
+    def subcommand(subcommand_args=[], parent=subparsers):
+        def decorator(function):
             parser = parent.add_parser(
-                func.__name__, description=func.__doc__, help=func.__doc__)
-            for args, kwargs in subparser_args:
-                # print(f"args: {args}\nkwargs: {kwargs}")
+                function.__name__, description=function.__doc__, help=function.__doc__,)
+            for args, kwargs in subcommand_args:
                 parser.add_argument(*args, **kwargs)
-            parser.set_defaults(func=func)
+                # see test() function below for illustration of args and kwargs
+            parser.set_defaults(subcmdfunc=function)
         return decorator
 
-    # helper function taking arguments
+    # define helper function taking arguments
     def argument(*args, **kwargs):
         return args, kwargs
 
-    # @subcommand([argument("No arguments", help="No arguments")])
-    @subcommand()
-    def nothing(args):
-        """print 'Nothing special!'"""
-        print("Nothing special!")
+    # sub-command arguments
+    set_today_args = [argument("num_days", type=int, help="number of days, positive or negative"), argument(
+        "arg2", type=int, help="arg2 help")]
 
-    @subcommand()
-    def something(args):
-        """print 'Something special!'"""
-        print("Something special!")
+    buy_args = [argument("product", help="product name"),
+                argument("date", help="purchase date - YYYY-MM-DD", type=valid_date), argument("price", help="purchase price - floating-point number", type=float), argument("exp", help="expiration date - YYYY-MM-DD"), argument("count", help="product count - integer", type=int)]
 
-    @subcommand([argument("-d", help="debug mode", action="store_true")])
-    # e.g. args = ("-d",) kwargs = {help="debug mode", action="store_true"}
-    def test(args):
-        """print all arguments"""
-        print(args)
+    sell_args = [argument("product", help="product name"),
+                 argument("date", help="selling date - YYYY-MM-DD", type=valid_date), argument("price", help="selling price - floating-point number", type=float), argument("exp", help="expiration date - YYYY-MM-DD"), argument("count", help="product count - integer", type=int)]
 
-    @subcommand([argument("-f", "--filename", help="a thing with a filename")])
-    def filename(args):
-        """print filename"""
-        print(args.filename)
-
-    @subcommand([argument("name", help="name")])
-    def name(args):
-        """print name"""
-        print(args.name)
-
+    # calling decorator, passing functions
     @subcommand()
     def today(args):
         """print today's date"""
@@ -74,17 +69,38 @@ def main():
     @subcommand()
     def yesterday(args):
         """print yesterday's date"""
-        today = date.today()
-        yesterday = today - timedelta(1)
+        yesterday = date.today() - timedelta(1)
         print(yesterday)
 
-    @subcommand([argument("num_days", type=int, help="number of days, positive or negative"), argument("arg2", type=int, help="arg2 help")])
+    @subcommand()
+    def products(args):
+        """print offered products"""
+        get_products()
+
+    @subcommand(set_today_args)
     def set_today(args):
         """set current date +/- a number of days"""
         today = date.today()
         num_days = args.num_days
         new_today = today + timedelta(num_days)
         print(new_today)
+
+    # @subcommand()
+    # def inventory(args):
+    #     """print inventory"""
+    #     print("inventory")
+
+    @subcommand(buy_args)
+    def buy(args):
+        """record data on buying event in bought.csv"""
+        filename = "bought.csv"
+        record_data(filename, args)
+
+    @subcommand(sell_args)
+    def sell(args):
+        """record data on selling event in sold.csv"""
+        filename = "sold.csv"
+        record_data(filename, args)
 
     # create the parser for the "set_date" command
 
@@ -97,30 +113,8 @@ def main():
                             help='number of days')
         parser.set_defaults(func=set_date)
 
-    # create the parser for the "record" command
-    def add_record_subparser(subparsers):
-        parser = subparsers.add_parser(
-            'record', description='Command to record entered data.', help='record entered data')
-        parser.add_argument(
-            'data', choices=["purchase", "sale"], help='data to be recorded')
-        parser.set_defaults(func=record)
-
-    # # create the parser for the "buy" command
-    # def add_buy_subparser(subparsers):
-    #     parser = subparsers.add_parser(
-    #         'buy', description='Command to record purchase information in a file named bought.csv.', help='record purchase information in a file named bought.csv')
-    #     parser.add_argument('product_name', help='name of the product')
-    #     parser.add_argument('buy_date', type=valid_date,
-    #                         help='purchase date - format: YYYY-MM-DD')
-    #     parser.add_argument('buy_price', type=float,
-    #                         help='purchase price')
-    #     parser.add_argument(
-    #         'expiration_date', type=valid_date, help='expiration date - format: YYYY-MM-DD')
-    #     parser.add_argument('product_count', type=int,
-    #                         help='product count')
-    #     parser.set_defaults(func=buy)
-
     # create the parser for the "report" command
+
     def add_report_subparser(subparsers):
         parser = subparsers.add_parser(
             'report', description='Command to report on recorded data.', help='report on recorded data')
@@ -133,12 +127,14 @@ def main():
         #     '--stdout', choices=["terminal", "pdf"], help='standard output to terminal or pdf')
         parser.set_defaults(func=report)
 
-    # dispatch the subcommand
-    args = parser.parse_args()
-    if args.subcommand is None:
-        parser.print_help()
-    else:
-        args.func(args)
+    def parse_args():
+        args = parser.parse_args()
+        if args.subcommand is None:
+            parser.print_help()
+        else:
+            # execute subcommand function
+            args.subcmdfunc(args)
+    parse_args()
 
 
 if __name__ == "__main__":
