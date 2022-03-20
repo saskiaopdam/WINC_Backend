@@ -27,7 +27,7 @@ def report(args):
     def print_data():
         # prints inventory, revenue or profit
 
-        def print_inventory():
+        def print_stock():
             products_bought = len(product_list) > 0
             if not products_bought:
                 print("No products bought so far, cannot calculate inventory.")
@@ -67,8 +67,8 @@ def report(args):
         # imlement choice of stdout (terminal or pdf)
         if data == "products":
             print_products()
-        if data == "inventory":
-            print_inventory()
+        if data == "stock":
+            print_stock()
         if data == "revenue":
             print_revenue()
         if data == "profit":

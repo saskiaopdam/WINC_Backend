@@ -2,7 +2,7 @@
 import argparse
 from datetime import date, timedelta
 
-from helper_functions import get_products, valid_date, record_data
+from helper_functions import get_product_list, get_total_stock, valid_date, record_data
 # from setting_date import set_date
 # from reporting import report
 
@@ -17,16 +17,14 @@ def main():
     # create top-level parser for the command-line arguments
     def create_parser():
         parser = argparse.ArgumentParser(
-            usage="python %(prog)s [option] <command> [arguments]", description="The following options and commands are available in SuperPy:", epilog="For help on a specific command, see 'python super.py <command> -h'.")
+            usage="python %(prog)s [option] <subcommand> [arguments]", description="The following options and subcommands are available in SuperPy:", epilog="For help on a specific subcommand, enter 'python super.py <subcommand> -h'.")
         return parser
     parser = create_parser()
 
     # create sub-level parsers for the subcommands
     def create_subparsers():
         subparsers = parser.add_subparsers(
-            title="commands", prog="python super.py", dest="subcommand", metavar="available actions to set time, record data and report on data")
-        # subparsers = parser.add_subparsers(
-        #     title="commands", description="Available actions", prog="python super.py", dest="subcommand", metavar="metavar", help="subcommand help")
+            title="subcommands", prog="python super.py", dest="subcommand", metavar="available actions to set time, record data and report on data")
         return subparsers
     subparsers = create_subparsers()
 
@@ -38,7 +36,7 @@ def main():
     def subcommand(subcommand_args=[], parent=subparsers):
         def decorator(function):
             parser = parent.add_parser(
-                function.__name__, description=function.__doc__, help=function.__doc__,)
+                function.__name__, description=function.__doc__, help=function.__doc__)
             for args, kwargs in subcommand_args:
                 parser.add_argument(*args, **kwargs)
                 # see test() function below for illustration of args and kwargs
@@ -49,7 +47,9 @@ def main():
     def argument(*args, **kwargs):
         return args, kwargs
 
-    # sub-command arguments
+    # subcommand arguments
+    # stock_args = [argument("day", choices=["today", "yesterday"])]
+
     set_today_args = [argument("num_days", type=int, help="number of days, positive or negative"), argument(
         "arg2", type=int, help="arg2 help")]
 
@@ -59,23 +59,37 @@ def main():
     sell_args = [argument("product", help="product name"),
                  argument("date", help="selling date - YYYY-MM-DD", type=valid_date), argument("price", help="selling price - floating-point number", type=float), argument("exp", help="expiration date - YYYY-MM-DD"), argument("count", help="product count - integer", type=int)]
 
-    # calling decorator, passing functions
-    @subcommand()
-    def today(args):
-        """print today's date"""
-        today = date.today()
-        print(today)
+    offer_args = [argument("product", help="product name")]
 
-    @subcommand()
-    def yesterday(args):
-        """print yesterday's date"""
-        yesterday = date.today() - timedelta(1)
-        print(yesterday)
+    # calling decorator, passing functions
+    # @subcommand()
+    # def today(args):
+    #     """print today's date"""
+    #     today = date.today()
+    #     print(today)
+
+    # @subcommand()
+    # def yesterday(args):
+    #     """print yesterday's date"""
+    #     yesterday = date.today() - timedelta(1)
+    #     print(yesterday)
 
     @subcommand()
     def products(args):
         """print offered products"""
-        get_products()
+        product_list = get_product_list()
+        no_products = len(product_list) == 0
+        if no_products:
+            print("no products")
+        else:
+            products = "\n".join(product_list)
+            print(products)
+
+    # @subcommand(stock_args)
+    @subcommand()
+    def stock(args):
+        """print stock of all offered products"""
+        get_total_stock(args)
 
     @subcommand(set_today_args)
     def set_today(args):
@@ -85,20 +99,15 @@ def main():
         new_today = today + timedelta(num_days)
         print(new_today)
 
-    # @subcommand()
-    # def inventory(args):
-    #     """print inventory"""
-    #     print("inventory")
-
     @subcommand(buy_args)
     def buy(args):
-        """record data on buying event in bought.csv"""
+        """record buying event in bought.csv"""
         filename = "bought.csv"
         record_data(filename, args)
 
     @subcommand(sell_args)
     def sell(args):
-        """record data on selling event in sold.csv"""
+        """record selling event in sold.csv"""
         filename = "sold.csv"
         record_data(filename, args)
 
