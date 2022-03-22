@@ -2,9 +2,7 @@
 import argparse
 from datetime import date, timedelta
 
-from helper_functions import get_product_list, get_total_stock, valid_date, record_data
-# from setting_date import set_date
-# from reporting import report
+from helper_functions import get_product_list, print_total_stock, get_period_result, valid_date, record_event
 
 # Do not change these lines.
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
@@ -48,33 +46,29 @@ def main():
         return args, kwargs
 
     # subcommand arguments
-    # stock_args = [argument("day", choices=["today", "yesterday"])]
+    result_args = [argument("month", help="month - e.g. Jan"),
+                   argument("year", help="year - e.g. 2020")]
 
-    set_today_args = [argument("num_days", type=int, help="number of days, positive or negative"), argument(
-        "arg2", type=int, help="arg2 help")]
+    set_today_args = [
+        argument("num_days", type=int, help="number of days, positive or negative")]
 
-    buy_args = [argument("product", help="product name"),
-                argument("date", help="purchase date - YYYY-MM-DD", type=valid_date), argument("price", help="purchase price - floating-point number", type=float), argument("exp", help="expiration date - YYYY-MM-DD"), argument("count", help="product count - integer", type=int)]
-
-    sell_args = [argument("product", help="product name"),
-                 argument("date", help="selling date - YYYY-MM-DD", type=valid_date), argument("price", help="selling price - floating-point number", type=float), argument("exp", help="expiration date - YYYY-MM-DD"), argument("count", help="product count - integer", type=int)]
-
-    offer_args = [argument("product", help="product name")]
+    event_args = [argument("product", help="product name"),
+                  argument("date", help="purchase date - YYYY-MM-DD", type=valid_date), argument("price", help="purchase price - floating-point number", type=float), argument("exp", help="expiration date - YYYY-MM-DD"), argument("count", help="product count - integer", type=int)]
 
     # calling decorator, passing functions
-    # @subcommand()
-    # def today(args):
-    #     """print today's date"""
-    #     today = date.today()
-    #     print(today)
+    @ subcommand()
+    def today(args):
+        """print today's date"""
+        today = date.today()
+        print(today)
 
-    # @subcommand()
-    # def yesterday(args):
-    #     """print yesterday's date"""
-    #     yesterday = date.today() - timedelta(1)
-    #     print(yesterday)
+    @ subcommand()
+    def yesterday(args):
+        """print yesterday's date"""
+        yesterday = date.today() - timedelta(1)
+        print(yesterday)
 
-    @subcommand()
+    @ subcommand()
     def products(args):
         """print offered products"""
         product_list = get_product_list()
@@ -85,57 +79,46 @@ def main():
             products = "\n".join(product_list)
             print(products)
 
-    # @subcommand(stock_args)
-    @subcommand()
+    @ subcommand()
     def stock(args):
-        """print stock of all offered products"""
-        get_total_stock(args)
+        """print current stock of all offered products"""
+        print_total_stock()
 
-    @subcommand(set_today_args)
-    def set_today(args):
-        """set current date +/- a number of days"""
-        today = date.today()
-        num_days = args.num_days
-        new_today = today + timedelta(num_days)
-        print(new_today)
+    @ subcommand(result_args)
+    def revenue(args):
+        """print revenue for given time period"""
+        revenue = get_period_result("sold.csv", args)
+        print(revenue)
 
-    @subcommand(buy_args)
+    @ subcommand(result_args)
+    def profit(args):
+        """print profit for given time period"""
+        revenue = get_period_result("sold.csv", args)
+        cost = get_period_result("bought.csv", args)
+        profit = revenue - cost
+        print(profit)
+
+    # I can see no point in a function to advance-time the current date by 2 days, as specified in the assignment. Instead, I added two subcommands for the user to print the current and previous date (today() and yesterday()).
+
+    # @ subcommand(set_today_args)
+    # def set_today(args):
+    #     """set current date +/- a number of days"""
+    #     today = date.today()
+    #     num_days = args.num_days
+    #     new_today = today + timedelta(num_days)
+    #     print(new_today)
+
+    @ subcommand(event_args)
     def buy(args):
         """record buying event in bought.csv"""
-        filename = "bought.csv"
-        record_data(filename, args)
+        record_event("bought.csv", args)
 
-    @subcommand(sell_args)
+    @ subcommand(event_args)
     def sell(args):
         """record selling event in sold.csv"""
-        filename = "sold.csv"
-        record_data(filename, args)
+        record_event("sold.csv", args)
 
-    # create the parser for the "set_date" command
-
-    def add_set_date_subparser(subparsers):
-        parser = subparsers.add_parser(
-            'set_date', description='Command to set the current date.', help='set current date')
-        parser.add_argument(
-            'direction', choices=["backwards", "forwards"], help='direction of date setting')
-        parser.add_argument('num_days', type=int,
-                            help='number of days')
-        parser.set_defaults(func=set_date)
-
-    # create the parser for the "report" command
-
-    def add_report_subparser(subparsers):
-        parser = subparsers.add_parser(
-            'report', description='Command to report on recorded data.', help='report on recorded data')
-        parser.add_argument(
-            'data', choices=["products", "inventory", "revenue", "profit"], help='data to be reported')
-        # voor "products" alleen "data" argument, geen "date" argument!
-        parser.add_argument(
-            'day', choices=["yesterday", "today"], help='selected day')
-        # parser.add_argument(
-        #     '--stdout', choices=["terminal", "pdf"], help='standard output to terminal or pdf')
-        parser.set_defaults(func=report)
-
+    # parse arguments on command-line
     def parse_args():
         args = parser.parse_args()
         if args.subcommand is None:
