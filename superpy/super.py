@@ -11,7 +11,7 @@ __human_name__ = "superpy"
 def main():
 
     # Import subcommand functions
-    from functions import today, yesterday, days_ago, buy, valid_date
+    from functions import today, yesterday, days_ago, products, stock, revenue, profit, buy, sell, valid_date
 
     # Create the top-level parser
     parser = argparse.ArgumentParser(
@@ -37,10 +37,39 @@ def main():
         "-txt", action="store_const", const="date.txt", help="export the past date to date.txt")
     parser_days_ago.set_defaults(func=days_ago)
 
+    # Create the parser for the "products" subcommand
+    parser_products = subparsers.add_parser(
+        "products", description="show the offered products and exit", help="show the offered products and exit")
+    parser_products.add_argument(
+        "-csv", action="store_const", const="products.csv", help="export the offered products to products.csv")
+    parser_products.set_defaults(func=products)
+
+    # Create the parser for the "stock" subcommand
+    parser_stock = subparsers.add_parser(
+        "stock", description="show the current stock and exit", help="show the current stock and exit")
+    parser_stock.add_argument(
+        "-csv", action="store_const", const="stock.csv", help="export the current stock to stock.csv")
+    parser_stock.set_defaults(func=stock)
+
+    # Create the parser for the "revenue" subcommand
+    parser_revenue = subparsers.add_parser(
+        "revenue", description="show the revenue for period x and exit", help="show the revenue for period x and exit")
+    parser_revenue.add_argument("month", help="month - e.g. jan")
+    parser_revenue.add_argument("year", help="year - e.g. 2020")
+    parser_revenue.set_defaults(func=revenue)
+
+    # Create the parser for the "profit" subcommand
+    parser_profit = subparsers.add_parser(
+        "profit", description="show the profit for period x and exit", help="show the profit for period x and exit")
+    parser_profit.add_argument("month", help="month - e.g. Jan")
+    parser_profit.add_argument("year", help="year - e.g. 2020")
+    parser_profit.set_defaults(func=profit)
+
     # Create the parser for the "buy" subcommand
     parser_buy = subparsers.add_parser(
         "buy", description="record a purchase in purchases.csv and exit", help="record a purchase in purchases.csv and exit")
-    parser_buy.add_argument("product", help="product name")
+    # idea: add type=singular to the "product" argument
+    parser_buy.add_argument("product", help="product name - singular noun")
     parser_buy.add_argument("date", type=valid_date,
                             help="purchase date - YYYY-MM-DD")
     parser_buy.add_argument("price", type=float,
@@ -49,6 +78,18 @@ def main():
                             help="expiration date - YYYY-MM-DD")
     parser_buy.add_argument("count", type=int, help="product count - integer")
     parser_buy.set_defaults(func=buy)
+
+    # Create the parser for the "sell" subcommand
+    parser_sell = subparsers.add_parser(
+        "sell", description="record a sale in sales.csv and exit", help="record a sale in sales.csv and exit")
+    # idea: add type=singular to the "product" argument
+    parser_sell.add_argument("product", help="product name - singular noun")
+    parser_sell.add_argument("date", type=valid_date,
+                             help="sale date - YYYY-MM-DD")
+    parser_sell.add_argument("price", type=float,
+                             help="sale price - floating point number")
+    parser_sell.add_argument("count", type=int, help="product count - integer")
+    parser_sell.set_defaults(func=sell)
 
     # Parse the arguments and call whatever function was selected
     args = parser.parse_args()

@@ -1,5 +1,2 @@
-product,date,price,exp,count
-apple,2022-03-01,1.0,2022-03-25,50
-apple,2022-03-01,1.0,2022-03-25,50
-apple,2022-03-01,1.0,2022-03-25,50
-strawberry,2022-03-01,2.0,2022-03-25,100
+product,date,price,count
+apple,2022-03-01,0.5,50
