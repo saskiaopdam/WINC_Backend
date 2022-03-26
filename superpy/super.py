@@ -1,6 +1,7 @@
 # Imports
 import argparse
-
+from datetime import date
+from time import strptime
 
 # Do not change these lines.
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
@@ -11,7 +12,7 @@ __human_name__ = "superpy"
 def main():
 
     # Import subcommand functions
-    from functions import today, yesterday, days_ago, products, stock, revenue, profit, buy, sell, valid_date
+    from functions import today, yesterday, days_ago, products, stock, revenue, profit, buy, sell, valid_month, valid_date
 
     # Create the top-level parser
     parser = argparse.ArgumentParser(
@@ -54,16 +55,36 @@ def main():
     # Create the parser for the "revenue" subcommand
     parser_revenue = subparsers.add_parser(
         "revenue", description="show the revenue for period x and exit", help="show the revenue for period x and exit")
-    parser_revenue.add_argument("month", help="month - e.g. jan")
-    parser_revenue.add_argument("year", help="year - e.g. 2020")
+    parser_revenue.add_argument(
+        "-today", action="store_const", const="today", help="show today's revenue")
+    parser_revenue.add_argument(
+        "-yesterday", action="store_const", const="yesterday", help="show yesterday's revenue")
+    parser_revenue.add_argument(
+        "-month", type=valid_month,
+        help="show revenue of a month - e.g. jan-2022")
     parser_revenue.set_defaults(func=revenue)
+    # parser_revenue = subparsers.add_parser(
+    #     "revenue", description="show the revenue for period x and exit", help="show the revenue for period x and exit")
+    # parser_revenue.add_argument("month", help="month - e.g. jan")
+    # parser_revenue.add_argument("year", help="year - e.g. 2020")
+    # parser_revenue.set_defaults(func=revenue)
 
     # Create the parser for the "profit" subcommand
     parser_profit = subparsers.add_parser(
         "profit", description="show the profit for period x and exit", help="show the profit for period x and exit")
-    parser_profit.add_argument("month", help="month - e.g. Jan")
-    parser_profit.add_argument("year", help="year - e.g. 2020")
+    parser_profit.add_argument(
+        "-today", action="store_const", const="today", help="show today's profit")
+    parser_profit.add_argument(
+        "-yesterday", action="store_const", const="yesterday", help="show yesterday's profit")
+    parser_profit.add_argument(
+        "-month", type=valid_month,
+        help="show profit of a month - e.g. jan-2022")
     parser_profit.set_defaults(func=profit)
+    # parser_profit = subparsers.add_parser(
+    #     "profit", description="show the profit for period x and exit", help="show the profit for period x and exit")
+    # parser_profit.add_argument("month", help="month - e.g. jan")
+    # parser_profit.add_argument("year", help="year - e.g. 2020")
+    # parser_profit.set_defaults(func=profit)
 
     # Create the parser for the "buy" subcommand
     parser_buy = subparsers.add_parser(

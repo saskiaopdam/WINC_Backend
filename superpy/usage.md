@@ -143,7 +143,9 @@ To execute "days_ago" with the option, enter: 'python super.py days_ago \<days\>
 The past date is now exported to date.txt:
 
 ```
-2022-03-18
+Today: 2022-03-26
+Days ago: 3
+Past date: 2022-03-23
 ```
 
 You can go back any number of days, e.g.:
@@ -350,6 +352,6 @@ It also includes a check on sufficient stock:
 
 ```
 ➜  superpy git:(main) ✗ python super.py sell apple 2022-03-01 0.5 700
-sale not recorded - can't sell 700 with 350 on stock
+sale not recorded - can't sell 700 with 350 in stock
 ➜  superpy git:(main) ✗
 ```
