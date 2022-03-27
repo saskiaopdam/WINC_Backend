@@ -1,7 +1,5 @@
 # Imports
 import argparse
-from datetime import date
-from time import strptime
 
 # Do not change these lines.
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
@@ -32,10 +30,8 @@ def main():
 
     # Create the parser for the "days_ago" subcommand
     parser_days_ago = subparsers.add_parser(
-        "days_ago", description="show the date n days ago and exit", help="show the date n days ago and exit")
+        "days_ago", description="go to the date n days ago and exit", help="go to the date n days ago and exit")
     parser_days_ago.add_argument("days", type=int, help="number of days")
-    parser_days_ago.add_argument(
-        "-txt", action="store_const", const="date.txt", help="export the past date to date.txt")
     parser_days_ago.set_defaults(func=days_ago)
 
     # Create the parser for the "products" subcommand
@@ -63,11 +59,6 @@ def main():
         "-month", type=valid_month,
         help="show revenue of a month - e.g. jan-2022")
     parser_revenue.set_defaults(func=revenue)
-    # parser_revenue = subparsers.add_parser(
-    #     "revenue", description="show the revenue for period x and exit", help="show the revenue for period x and exit")
-    # parser_revenue.add_argument("month", help="month - e.g. jan")
-    # parser_revenue.add_argument("year", help="year - e.g. 2020")
-    # parser_revenue.set_defaults(func=revenue)
 
     # Create the parser for the "profit" subcommand
     parser_profit = subparsers.add_parser(
@@ -80,11 +71,6 @@ def main():
         "-month", type=valid_month,
         help="show profit of a month - e.g. jan-2022")
     parser_profit.set_defaults(func=profit)
-    # parser_profit = subparsers.add_parser(
-    #     "profit", description="show the profit for period x and exit", help="show the profit for period x and exit")
-    # parser_profit.add_argument("month", help="month - e.g. jan")
-    # parser_profit.add_argument("year", help="year - e.g. 2020")
-    # parser_profit.set_defaults(func=profit)
 
     # Create the parser for the "buy" subcommand
     parser_buy = subparsers.add_parser(

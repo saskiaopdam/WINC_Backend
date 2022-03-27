@@ -22,60 +22,28 @@ def days_ago(args):
     days_ago = args.days
     past_date = today - timedelta(days_ago)
 
-    # read "result.txt" to know which result was processed (revenue or profit)
+    # read "result.txt" to see which result was calculated recently (revenue or profit)
     with open("result.txt", 'r') as textfile:
-        # textfile.write(str(past_date))
-        # textfile.writelines("\n".join(lines))
         result = textfile.read()
-        today = date.today()
+
+        # calculate this result for the date n days ago
         if result == "revenue":
-            # print("True")
             revenue = day_result("sales.csv", past_date)
-            print(f"Revenue {past_date} ({days_ago} day ago):") if days_ago == 1 else print(
-                f"Revenue {past_date} ({days_ago} days ago):")
-            print(f"{revenue}")
+            print("Your last calculation was revenue.")
+            print(f"Revenue {days_ago} day ago ({past_date})):") if days_ago == 1 else print(
+                f"Revenue {days_ago} days ago ({past_date}):")
+            print(revenue)
         if result == "profit":
-            # print("True")
             revenue = day_result("sales.csv", past_date)
             cost = day_result("purchases.csv", past_date)
             profit = revenue - cost
-            print(f"Profit {past_date} ({days_ago} day ago):") if days_ago == 1 else print(
-                f"Profit {past_date} ({days_ago} days ago):")
-            print(f"{profit}")
-
-    # if args.txt:
-    #     # export to text file
-    #     filename = "date.txt"
-
-    #     lines = [f"Today: {today}", f"Days ago: {days_ago}",
-    #              f"Past date: {past_date}"]
-    #     with open(filename, 'w') as textfile:
-    #         # textfile.write(str(past_date))
-    #         textfile.writelines("\n".join(lines))
-
-    #     # print(f"{past_date} exported to date.txt")
-
-    #     # read "result.txt" to know which result was processed
-    #     with open("result.txt", 'r') as textfile:
-    #         # textfile.write(str(past_date))
-    #         # textfile.writelines("\n".join(lines))
-    #         result = textfile.read()
-    #         today = date.today()
-    #         if result == "revenue":
-    #             # print("True")
-    #             revenue = day_result("purchases.csv", past_date)
-    #             print(f"Revenue {past_date} ({days_ago} day ago):") if days_ago == 1 else print(
-    #                 f"Revenue {past_date} ({days_ago} days ago):")
-    #             print(f"{revenue}")
-    #         if result == "profit":
-    #             # print("True")
-    #             revenue = day_result("purchases.csv", past_date)
-    #             print(f"Revenue {past_date} ({days_ago} day ago):") if days_ago == 1 else print(
-    #                 f"Revenue {past_date} ({days_ago} days ago):")
-    #             print(f"{revenue}")
-
-    # else:
-    #     print(f"{past_date}")
+            print("Your last calculation was profit.")
+            print(f"Profit {days_ago} day ago ({past_date}):") if days_ago == 1 else print(
+                f"Profit {days_ago} days ago ({past_date}):")
+            print(profit)
+        # if no result (revenue or profit) has been calculated so far, just print the past date
+        if not result:
+            print(past_date)
 
 
 # helper function for products()
@@ -168,31 +136,7 @@ def stock(args):
                 print(f"{product}: {stock}")
 
 
-# helper function for revenue() and profit()
-
-# def period_result(filename, args):
-    # month = args.month
-    # year = args.year
-
-    # with open(filename) as csvfile:
-    #     # find number of days in entered month
-    #     month = strptime(month, '%b').tm_mon
-    #     year = strptime(year, '%Y').tm_year
-    #     _, days_in_month = monthrange(year, month)
-
-    #     # find the start- and end_date of this month
-    #     start_date = date(year, month, 1).strftime('%Y-%m-%d')
-    #     end_date = date(
-    #         year, month, days_in_month).strftime('%Y-%m-%d')
-
-    #     reader = csv.DictReader(csvfile)
-    #     result = 0
-    #     for row in reader:
-    #         if row['date'] >= start_date and row['date'] <= end_date:
-    #             result += float(row['price'])
-    #     return result
-
-
+# helper function for result()
 def period_result(filename, period):
 
     with open(filename) as csvfile:
@@ -214,7 +158,7 @@ def period_result(filename, period):
         return result
 
 
-# helper function for revenue() and profit()
+# helper function for result()
 def day_result(filename, day):
 
     with open(filename) as csvfile:
@@ -228,7 +172,7 @@ def day_result(filename, day):
 
 # helper function for revenue() and profit()
 def result(args):
-    # the subcommand is "revenue" or "profit"
+    # the subcommand is either "revenue" or "profit"
     subcommand = args.subcommand
 
     if args.today is None and args.yesterday is None and args.month is None:
@@ -241,22 +185,22 @@ def result(args):
             cost = day_result("purchases.csv", today)
             profit = revenue - cost
             if subcommand == "revenue":
-                print(f"Revenue {today}:")
-                print(f"{revenue}")
+                print(f"Revenue today ({today}):")
+                print(revenue)
             if subcommand == "profit":
-                print(f"Profit {today}:")
-                print(f"{profit}")
+                print(f"Profit today ({today}):")
+                print(profit)
         if args.yesterday:
             yesterday = date.today() - timedelta(1)
             revenue = day_result("sales.csv", yesterday)
             cost = day_result("purchases.csv", yesterday)
             profit = revenue - cost
             if subcommand == "revenue":
-                print(f"Revenue {yesterday}:")
-                print(f"{revenue}")
+                print(f"Revenue yesterday ({yesterday}):")
+                print(revenue)
             if subcommand == "profit":
-                print(f"Profit {yesterday}:")
-                print(f"{profit}")
+                print(f"Profit yesterday ({yesterday}):")
+                print(profit)
         if args.month:
             period = args.month
             revenue = period_result("sales.csv", period)
@@ -264,10 +208,10 @@ def result(args):
             profit = revenue - cost
             if subcommand == "revenue":
                 print(f"Revenue {period}:")
-                print(f"{revenue}")
+                print(revenue)
             if subcommand == "profit":
                 print(f"Profit {period}:")
-                print(f"{profit}")
+                print(profit)
 
         # write "revenue" or "profit" to text file for days_ago() to read
         filename = "result.txt"
@@ -278,74 +222,10 @@ def result(args):
 
 def revenue(args):
     result(args)
-    # if args.today is None and args.yesterday is None and args.month is None:
-    #     print("please enter an option - see 'python super.py revenue -h'")
-    # else:
-    #     if args.today:
-    #         today = date.today()
-    #         revenue = day_result("sales.csv", today)
-    #         print(f"Revenue {today}:")
-    #         print(f"{revenue}")
-    #     if args.yesterday:
-    #         yesterday = date.today() - timedelta(1)
-    #         revenue = day_result("sales.csv", yesterday)
-    #         print(f"Revenue {yesterday}:")
-    #         print(f"{revenue}")
-    #     if args.month:
-    #         period = args.month
-    #         revenue = period_result("sales.csv", period)
-    #         print(f"Revenue {period}:")
-    #         print(f"{revenue}")
-
-    #     # write "revenue" to text file for days_ago() to read
-    #     filename = "result.txt"
-
-    #     with open(filename, 'w') as textfile:
-    #         textfile.write("revenue")
-
-    # revenue = period_result("purchases.csv", args)
-    # print(revenue)
-    # revenue = period_result("purchases.csv", args)
-    # print(revenue)
 
 
 def profit(args):
     result(args)
-    # if args.today is None and args.yesterday is None and args.month is None:
-    #     print("please enter an option - see 'python super.py profit -h'")
-    # else:
-    #     if args.today:
-    #         today = date.today()
-    #         revenue = day_result("sales.csv", today)
-    #         cost = day_result("purchases.csv", today)
-    #         profit = revenue - cost
-    #         print(f"Profit {today}:")
-    #         print(f"{profit}")
-    #     if args.yesterday:
-    #         yesterday = date.today() - timedelta(1)
-    #         revenue = day_result("sales.csv", yesterday)
-    #         cost = day_result("purchases.csv", yesterday)
-    #         profit = revenue - cost
-    #         print(f"Profit {yesterday}:")
-    #         print(f"{profit}")
-    #     if args.month:
-    #         period = args.month
-    #         revenue = period_result("sales.csv", period)
-    #         cost = period_result("purchases.csv", period)
-    #         profit = revenue - cost
-    #         print(f"Profit {period}:")
-    #         print(f"{profit}")
-
-    #     # write "revenue" to text file for days_ago() to read
-    #     filename = "result.txt"
-
-    #     with open(filename, 'w') as textfile:
-    #         textfile.write("profit")
-
-    # revenue = period_result("purchases.csv", args)
-    # cost = period_result("sales.csv", args)
-    # profit = revenue - cost
-    # print(profit)
 
 
 def buy(args):
@@ -355,8 +235,6 @@ def buy(args):
         print(
             f"purchase not recorded - {purchase_date} is a future date - enter past or current date")
 
-
-# the purchase date may not be a future date
     else:
         # append data to csv file
         filename = "purchases.csv"
@@ -404,7 +282,7 @@ def sell(args):
 def valid_month(date_string):
     # called from "revenue" - type=valid_month
 
-    # make sure the entered month has the b Y format
+    # make sure the entered month has the b-Y format
     try:
         return datetime.strptime(date_string, "%b-%Y").strftime("%B %Y")
     except ValueError:

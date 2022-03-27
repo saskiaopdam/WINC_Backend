@@ -19,7 +19,7 @@ subcommands:
   {today,yesterday,days_ago,products,stock,revenue,profit,buy,sell}
     today               show today's date and exit
     yesterday           show yesterday's date and exit
-    days_ago            show the date n days ago and exit
+    days_ago            show the result n days ago and exit
     products            show the offered products and exit
     stock               show the current stock and exit
     revenue             show the revenue for period x and exit
@@ -48,20 +48,17 @@ options:
 ➜  superpy git:(main) ✗
 ```
 
-**E.g.** get help on "days_ago" subcommand (takes one positional and one optional argument):
+**E.g.** get help on "products" subcommand (takes one optional argument):
 
 ```
-➜  superpy git:(main) ✗ python super.py days_ago -h
-usage: python super.py days_ago [-h] [-txt] days
+➜  superpy git:(main) ✗ python super.py products -h
+usage: python super.py products [-h] [-csv]
 
-show the date n days ago and exit
-
-positional arguments:
-  days        number of days
+show the offered products and exit
 
 options:
   -h, --help  show this help message and exit
-  -txt        export the past date to date.txt
+  -csv        export the offered products to products.csv
 ➜  superpy git:(main) ✗
 ```
 
@@ -119,40 +116,27 @@ To execute "yesterday", enter 'python super.py yesterday':
 
 ### **- days_ago**
 
-Subcommand to show the date n days ago in the terminal.
-The function days_ago() prints the date n days ago to the standard output, stdout.
-Days_ago() takes one positional argument (days) and one optional argument (-txt).
-The optional argument makes the function export the past date to date.txt.
+Subcommand to go to the date n days ago.
+The function days_ago() checks which result was recently calculated (revenue or profit), and prints this result n days ago to the standard output, stdout. If no result has been calculated so far, it just prints the date n days ago.
+Days_ago() takes one positional argument (days).
 
 To execute "days_ago", enter: 'python super.py days_ago \<days\>':
 
 ```
-➜  superpy git:(main) ✗ python super.py days_ago 7
-2022-03-18
+➜  superpy git:(main) ✗ python super.py days_ago 2
+Your last calculation was revenue.
+Revenue 2 days ago (2022-03-25):
+0
 ➜  superpy git:(main) ✗
-```
-
-To execute "days_ago" with the option, enter: 'python super.py days_ago \<days\> -txt':
-
-```
-➜  superpy git:(main) ✗ python super.py days_ago 7 -txt
-2022-03-18 exported to date.txt
-➜  superpy git:(main) ✗
-```
-
-The past date is now exported to date.txt:
-
-```
-Today: 2022-03-26
-Days ago: 3
-Past date: 2022-03-23
 ```
 
 You can go back any number of days, e.g.:
 
 ```
 ➜  superpy git:(main) ✗ python super.py days_ago 100
-2021-12-15
+Your last calculation was revenue.
+Revenue 100 days ago (2021-12-17):
+0
 ➜  superpy git:(main) ✗
 ```
 
@@ -161,9 +145,9 @@ Going back to a year BC will throw an OverflowError:
 ```
 ➜  superpy git:(main) ✗ python super.py days_ago 1000000
 Traceback (most recent call last):
-  File "/Users/saskiaopdam/Desktop/Back-end/superpy/super.py", line 103, in <module>
+  File "/Users/saskiaopdam/Desktop/Back-end/superpy/super.py", line 122, in <module>
     main()
-  File "/Users/saskiaopdam/Desktop/Back-end/superpy/super.py", line 99, in main
+  File "/Users/saskiaopdam/Desktop/Back-end/superpy/super.py", line 118, in main
     args.func(args)
   File "/Users/saskiaopdam/Desktop/Back-end/superpy/functions.py", line 23, in days_ago
     past_date = today - timedelta(days_ago)
@@ -241,27 +225,107 @@ kiwi,100
 
 Subcommand to show the revenue for period x in the terminal.
 The function revenue() prints the revenue for period x to the standard output, stdout.
-Revenue() takes two positional arguments (month and year).
+Revenue() takes three optional arguments (-today, -yesterday and -month).
 
-To execute "revenue", enter 'python super.py revenue \<month\> \<year\>':
+To execute "revenue", enter 'python super.py revenue \[option]'.
+
+If you execute "revenue" without an option, the program will prompt you to add one:
 
 ```
-➜  superpy git:(main) ✗ python super.py revenue mar 2022
-6.0
+➜  superpy git:(main) ✗ python super.py revenue
+please enter an option - see 'python super.py revenue -h'
+➜  superpy git:(main) ✗
+```
+
+With the option "-today":
+
+```
+➜  superpy git:(main) ✗ python super.py revenue -today
+Revenue today (2022-03-27):
+0
+➜  superpy git:(main) ✗
+```
+
+With the option "-yesterday":
+
+```
+➜ superpy git:(main) ✗ python super.py revenue -yesterday
+Revenue yesterday (2022-03-26):
+0
+➜ superpy git:(main) ✗
+```
+
+With the option "-month":
+
+```
+➜ superpy git:(main) ✗ python super.py revenue -month mar-2022
+Revenue March 2022:
+0.5
+➜ superpy git:(main) ✗
+```
+
+**Note:**
+To go back to another date than yesterday, use the "days_ago" subcommand. Is will print the result x days ago:
+
+```
+➜  superpy git:(main) ✗ python super.py days_ago 4
+Your last calculation was revenue.
+Revenue 4 days ago (2022-03-23):
+0
 ➜  superpy git:(main) ✗
 ```
 
 ### **-profit**
 
 Subcommand to show the profit for period x in the terminal.
-The function profit() prints the profit for period x to the standard output, stdout.
-Profit() takes two positional arguments (month and year).
+The function profit() prints the revenue for period x to the standard output, stdout.
+Profit() takes three optional arguments (-today, -yesterday and -month).
 
-To execute "profit", enter 'python super.py profit \<month\> \<year\>':
+To execute "profit", enter 'python super.py profit \[option]'.
+
+If you execute "profit" without an option, the program will prompt you to add one:
 
 ```
-➜  superpy git:(main) ✗ python super.py profit mar 2022
-5.5
+➜  superpy git:(main) ✗ python super.py profit
+please enter an option - see 'python super.py profit -h'
+➜  superpy git:(main) ✗
+```
+
+With the option "-today":
+
+```
+➜  superpy git:(main) ✗ python super.py profit -today
+Profit today (2022-03-27):
+0.5
+➜  superpy git:(main) ✗
+```
+
+With the option "-yesterday":
+
+```
+➜  superpy git:(main) ✗ python super.py profit -yesterday
+Profit yesterday (2022-03-26):
+-4.0
+➜  superpy git:(main) ✗
+```
+
+With the option "-month":
+
+```
+➜  superpy git:(main) ✗ python super.py profit -month mar-2022
+Profit March 2022:
+-6.5
+➜  superpy git:(main) ✗
+```
+
+**Note:**
+To go back to another date than yesterday, use the "days_ago" subcommand. Is will print the result x days ago:
+
+```
+➜  superpy git:(main) ✗ python super.py days_ago 4
+Your last calculation was profit.
+Profit 4 days ago (2022-03-23):
+0
 ➜  superpy git:(main) ✗
 ```
 
