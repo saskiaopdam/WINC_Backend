@@ -4,6 +4,7 @@ import argparse
 from datetime import datetime, date, timedelta
 from time import strptime
 from calendar import monthrange
+import xlsxwriter
 
 
 # Subcommand functions
@@ -78,6 +79,40 @@ def products(args):
 
             print("offered products exported to products.csv")
 
+        elif args.excel:
+            # export to excel file
+            workbook = xlsxwriter.Workbook('products.xlsx')
+            worksheet = workbook.add_worksheet()
+
+            # add a bold format
+            bold = workbook.add_format({'bold': True})
+
+            # data
+            products = ()
+
+            for product in offered_products:
+                products = products + (product,)
+
+            # # start from first cell
+            row = 0
+            col = 0
+
+            # write headers
+            worksheet.write(row, 0, 'offered products', bold)
+
+            # start from first cell
+            row = 1
+            col = 0
+
+            # write data out row by row
+            for product in (products):
+                worksheet.write(row, col,     product)
+                row += 1
+
+            workbook.close()
+
+            print("offered products exported to products.xlsx")
+
         else:
             print("\n".join(offered_products))
 
@@ -125,10 +160,47 @@ def stock(args):
             with open(filename, 'w') as csvfile:
                 writer = csv.writer(csvfile)
                 for product in offered_products:
-                    stock = product_stock(product, today)
-                    writer.writerow([product, stock])
+                    amount = product_stock(product, today)
+                    writer.writerow([product, amount])
 
             print("current stock exported to stock.csv")
+
+        elif args.excel:
+            # export to excel file
+            workbook = xlsxwriter.Workbook('stock.xlsx')
+            worksheet = workbook.add_worksheet()
+
+            # add a bold format
+            bold = workbook.add_format({'bold': True})
+
+            # data
+            stock = ()
+
+            for product in offered_products:
+                amount = product_stock(product, today)
+                stock = stock + ([product, amount],)
+
+            # # start from first cell
+            row = 0
+            col = 0
+
+            # write headers
+            worksheet.write(row, 0, 'product', bold)
+            worksheet.write(row, 1, 'in stock', bold)
+
+            # start from first cell
+            row = 1
+            col = 0
+
+            # write data out row by row
+            for product, amount in (stock):
+                worksheet.write(row, col,     product)
+                worksheet.write(row, col + 1, amount)
+                row += 1
+
+            workbook.close()
+
+            print("current stock exported to stock.xlsx")
 
         else:
             for product in offered_products:

@@ -19,7 +19,7 @@ subcommands:
   {today,yesterday,days_ago,products,stock,revenue,profit,buy,sell}
     today               show today's date and exit
     yesterday           show yesterday's date and exit
-    days_ago            show the result n days ago and exit
+    days_ago            go to the date n days ago and exit
     products            show the offered products and exit
     stock               show the current stock and exit
     revenue             show the revenue for period x and exit
@@ -159,8 +159,8 @@ OverflowError: date value out of range
 
 Subcommand to show the offered products in the terminal.
 The function products() prints the offered products to the standard output, stdout.
-Products() takes one optional argument (-csv).
-The optional argument makes the function export the offered products to products.csv.
+Products() takes two optional arguments (-csv and -excel).
+The optional arguments makes the function export the current stock to either products.csv or products.xlsx.
 
 To execute "products", enter: 'python super.py products':
 
@@ -169,10 +169,11 @@ To execute "products", enter: 'python super.py products':
 apple
 banana
 kiwi
+mango
 ➜  superpy git:(main) ✗
 ```
 
-To execute "products" with the option, enter: 'python super.py products -csv':
+To execute "products" with the option -csv, enter: 'python super.py products -csv':
 
 ```
 ➜  superpy git:(main) ✗ python super.py products -csv
@@ -186,14 +187,25 @@ The offered products are now exported to products.csv:
 apple
 banana
 kiwi
+mango
 ```
+
+To execute "products" with the option -excel, enter: 'python super.py products -excel':
+
+```
+➜  superpy git:(main) ✗ python super.py products -excel
+offered products exported to products.xlsx
+➜  superpy git:(main) ✗
+```
+
+Open the file products.xlsx in Excel to see the result.
 
 ### **-stock**
 
 Subcommand to show the current stock in the terminal.
 The function stock() prints the current stock to the standard output, stdout.
-Stock() takes one optional argument (-csv).
-The optional argument makes the function export the current stock to stock.csv.
+Stock() takes two optional arguments (-csv and -excel).
+The optional arguments makes the function export the current stock to either stock.csv or stock.xlsx.
 
 To execute "stock", enter: 'python super.py stock':
 
@@ -202,10 +214,11 @@ To execute "stock", enter: 'python super.py stock':
 apple: 350
 banana: 100
 kiwi: 100
+mango: 0
 ➜  superpy git:(main) ✗
 ```
 
-To execute "stock" with the option, enter: 'python super.py stock -csv':
+To execute "stock" with the option -csv, enter: 'python super.py stock -csv':
 
 ```
 ➜  superpy git:(main) ✗ python super.py stock -csv
@@ -219,7 +232,18 @@ The current stock is now exported to stock.csv:
 apple,350
 banana,100
 kiwi,100
+mango,0
 ```
+
+To execute "stock" with the option -excel, enter: 'python super.py stock -excel':
+
+```
+➜  superpy git:(main) ✗ python super.py stock -excel
+current stock exported to stock.xlsx
+➜  superpy git:(main) ✗
+```
+
+Open the file stock.xlsx in Excel to see the result.
 
 ### **-revenue**
 

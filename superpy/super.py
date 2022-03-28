@@ -1,5 +1,8 @@
 # Imports
 import argparse
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 # Do not change these lines.
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
@@ -8,6 +11,13 @@ __human_name__ = "superpy"
 
 # Your code below this line.
 def main():
+
+    # x = np.linspace(0, 2 * np.pi, 200)
+    # y = np.sin(x)
+
+    # fig, ax = plt.subplots()
+    # ax.plot(x, y)
+    # plt.show()
 
     # Import subcommand functions
     from functions import today, yesterday, days_ago, products, stock, revenue, profit, buy, sell, valid_month, valid_date
@@ -39,6 +49,8 @@ def main():
         "products", description="show the offered products and exit", help="show the offered products and exit")
     parser_products.add_argument(
         "-csv", action="store_const", const="products.csv", help="export the offered products to products.csv")
+    parser_products.add_argument(
+        "-excel", action="store_const", const="products.xlsx", help="export the offered products to products.xlsx")
     parser_products.set_defaults(func=products)
 
     # Create the parser for the "stock" subcommand
@@ -46,6 +58,8 @@ def main():
         "stock", description="show the current stock and exit", help="show the current stock and exit")
     parser_stock.add_argument(
         "-csv", action="store_const", const="stock.csv", help="export the current stock to stock.csv")
+    parser_stock.add_argument(
+        "-excel", action="store_const", const="stock.xlsx", help="export the current stock to stock.xlsx")
     parser_stock.set_defaults(func=stock)
 
     # Create the parser for the "revenue" subcommand
