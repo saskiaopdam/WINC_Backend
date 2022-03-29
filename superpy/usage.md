@@ -5,8 +5,9 @@
 1. Save SuperPy on your machine.
 2. Open a command-line interface (CLI).
 3. Make sure you have Python installed.
-4. Go to the directory where you saved SuperPy.
-5. After the prompt, type 'python super.py' and press Enter:
+4. Install the Python modules XlsxWriter and beautifultable.
+5. Go to the directory where you saved SuperPy.
+6. After the prompt, type 'python super.py' and press Enter:
 
 ```
 ➜  superpy git:(main) ✗ python super.py
@@ -48,17 +49,18 @@ options:
 ➜  superpy git:(main) ✗
 ```
 
-**E.g.** get help on "products" subcommand (takes one optional argument):
+**E.g.** get help on "products" subcommand (takes two optional arguments):
 
 ```
 ➜  superpy git:(main) ✗ python super.py products -h
-usage: python super.py products [-h] [-csv]
+usage: python super.py products [-h] [-csv] [-excel]
 
 show the offered products and exit
 
 options:
   -h, --help  show this help message and exit
   -csv        export the offered products to products.csv
+  -excel      export the offered products to products.xlsx
 ➜  superpy git:(main) ✗
 ```
 
@@ -71,7 +73,7 @@ usage: python super.py buy [-h] product date price expiration count
 record a purchase in purchases.csv and exit
 
 positional arguments:
-  product     product name
+  product     product name - singular noun
   date        purchase date - YYYY-MM-DD
   price       purchase price - floating point number
   expiration  expiration date - YYYY-MM-DD
@@ -96,7 +98,7 @@ To execute "today", enter 'python super.py today':
 
 ```
 ➜  superpy git:(main) ✗ python super.py today
-2022-03-25
+Today: 2022-03-29
 ➜  superpy git:(main) ✗
 ```
 
@@ -110,7 +112,7 @@ To execute "yesterday", enter 'python super.py yesterday':
 
 ```
 ➜  superpy git:(main) ✗ python super.py yesterday
-2022-03-24
+Yesterday: 2022-03-28
 ➜  superpy git:(main) ✗
 ```
 
@@ -122,11 +124,21 @@ Days_ago() takes one positional argument (days).
 
 To execute "days_ago", enter: 'python super.py days_ago \<days\>':
 
+If no result has been calculated so far, the past date is displayed:
+
 ```
 ➜  superpy git:(main) ✗ python super.py days_ago 2
-Your last calculation was revenue.
-Revenue 2 days ago (2022-03-25):
-0
+2 days ago: 2022-03-27
+➜  superpy git:(main) ✗
+```
+
+If a result has been calculated, the result on the past date is displayed:
+
+```
+➜  superpy git:(main) ✗ python super.py days_ago 2
+Last calculation: revenue.
+Revenue 2 days ago (2022-03-27):
+0.5
 ➜  superpy git:(main) ✗
 ```
 
@@ -134,8 +146,8 @@ You can go back any number of days, e.g.:
 
 ```
 ➜  superpy git:(main) ✗ python super.py days_ago 100
-Your last calculation was revenue.
-Revenue 100 days ago (2021-12-17):
+Last calculation: revenue.
+Revenue 100 days ago (2021-12-19):
 0
 ➜  superpy git:(main) ✗
 ```
@@ -143,13 +155,13 @@ Revenue 100 days ago (2021-12-17):
 Going back to a year BC will throw an OverflowError:
 
 ```
-➜  superpy git:(main) ✗ python super.py days_ago 1000000
+➜  superpy git:(main) ✗ python super.py days_ago 738395
 Traceback (most recent call last):
-  File "/Users/saskiaopdam/Desktop/Back-end/superpy/super.py", line 122, in <module>
+  File "/Users/saskiaopdam/Desktop/Back-end/superpy/super.py", line 124, in <module>
     main()
-  File "/Users/saskiaopdam/Desktop/Back-end/superpy/super.py", line 118, in main
+  File "/Users/saskiaopdam/Desktop/Back-end/superpy/super.py", line 120, in main
     args.func(args)
-  File "/Users/saskiaopdam/Desktop/Back-end/superpy/functions.py", line 23, in days_ago
+  File "/Users/saskiaopdam/Desktop/Back-end/superpy/functions.py", line 24, in days_ago
     past_date = today - timedelta(days_ago)
 OverflowError: date value out of range
 ➜  superpy git:(main) ✗
@@ -160,16 +172,20 @@ OverflowError: date value out of range
 Subcommand to show the offered products in the terminal.
 The function products() prints the offered products to the standard output, stdout.
 Products() takes two optional arguments (-csv and -excel).
-The optional arguments makes the function export the current stock to either products.csv or products.xlsx.
+The optional arguments make the function export the offered products to either products.csv or products.xlsx.
 
 To execute "products", enter: 'python super.py products':
 
 ```
-➜  superpy git:(main) ✗ python super.py products
-apple
-banana
-kiwi
-mango
+➜  superpy git:(main) ✗  python super.py products
+...........
+: product :
+...........
+: apple   :
+: banana  :
+: kiwi    :
+: mango   :
+...........
 ➜  superpy git:(main) ✗
 ```
 
@@ -184,6 +200,7 @@ offered products exported to products.csv
 The offered products are now exported to products.csv:
 
 ```
+product
 apple
 banana
 kiwi
@@ -205,16 +222,20 @@ Open the file products.xlsx in Excel to see the result.
 Subcommand to show the current stock in the terminal.
 The function stock() prints the current stock to the standard output, stdout.
 Stock() takes two optional arguments (-csv and -excel).
-The optional arguments makes the function export the current stock to either stock.csv or stock.xlsx.
+The optional arguments make the function export the current stock to either stock.csv or stock.xlsx.
 
 To execute "stock", enter: 'python super.py stock':
 
 ```
 ➜  superpy git:(main) ✗ python super.py stock
-apple: 350
-banana: 100
-kiwi: 100
-mango: 0
+.......................
+: product :     stock :
+.......................
+: apple   :       350 :
+: banana  :        50 :
+: kiwi    :       100 :
+: mango   :         0 :
+.......................
 ➜  superpy git:(main) ✗
 ```
 
@@ -229,8 +250,9 @@ current stock exported to stock.csv
 The current stock is now exported to stock.csv:
 
 ```
+product,stock
 apple,350
-banana,100
+banana,50
 kiwi,100
 mango,0
 ```
@@ -265,7 +287,7 @@ With the option "-today":
 
 ```
 ➜  superpy git:(main) ✗ python super.py revenue -today
-Revenue today (2022-03-27):
+Revenue today (2022-03-29):
 0
 ➜  superpy git:(main) ✗
 ```
@@ -273,28 +295,28 @@ Revenue today (2022-03-27):
 With the option "-yesterday":
 
 ```
-➜ superpy git:(main) ✗ python super.py revenue -yesterday
-Revenue yesterday (2022-03-26):
+➜  superpy git:(main) ✗ python super.py revenue -yesterday
+Revenue yesterday (2022-03-28):
 0
-➜ superpy git:(main) ✗
+➜  superpy git:(main) ✗
 ```
 
 With the option "-month":
 
 ```
-➜ superpy git:(main) ✗ python super.py revenue -month mar-2022
+➜  superpy git:(main) ✗ python super.py revenue -month mar-2022
 Revenue March 2022:
 0.5
-➜ superpy git:(main) ✗
+➜  superpy git:(main) ✗
 ```
 
 **Note:**
-To go back to another date than yesterday, use the "days_ago" subcommand. Is will print the result x days ago:
+To go back to another date than yesterday, use the "days_ago" subcommand. It will print the result x days ago:
 
 ```
 ➜  superpy git:(main) ✗ python super.py days_ago 4
-Your last calculation was revenue.
-Revenue 4 days ago (2022-03-23):
+Last calculation: revenue.
+Revenue 4 days ago (2022-03-25):
 0
 ➜  superpy git:(main) ✗
 ```
@@ -302,7 +324,7 @@ Revenue 4 days ago (2022-03-23):
 ### **-profit**
 
 Subcommand to show the profit for period x in the terminal.
-The function profit() prints the revenue for period x to the standard output, stdout.
+The function profit() prints the profit for period x to the standard output, stdout.
 Profit() takes three optional arguments (-today, -yesterday and -month).
 
 To execute "profit", enter 'python super.py profit \[option]'.
@@ -319,17 +341,17 @@ With the option "-today":
 
 ```
 ➜  superpy git:(main) ✗ python super.py profit -today
-Profit today (2022-03-27):
-0.5
+Profit today (2022-03-29):
+0
 ➜  superpy git:(main) ✗
 ```
 
 With the option "-yesterday":
 
 ```
-➜  superpy git:(main) ✗ python super.py profit -yesterday
-Profit yesterday (2022-03-26):
--4.0
+➜  superpy git:(main) ✗  python super.py profit -yesterday
+Profit yesterday (2022-03-28):
+0
 ➜  superpy git:(main) ✗
 ```
 
@@ -343,13 +365,13 @@ Profit March 2022:
 ```
 
 **Note:**
-To go back to another date than yesterday, use the "days_ago" subcommand. Is will print the result x days ago:
+To go back to another date than yesterday, use the "days_ago" subcommand. It will print the result x days ago:
 
 ```
 ➜  superpy git:(main) ✗ python super.py days_ago 4
-Your last calculation was profit.
-Profit 4 days ago (2022-03-23):
-0
+Last calculation: profit.
+Profit 4 days ago (2022-03-25):
+-3.0
 ➜  superpy git:(main) ✗
 ```
 
@@ -381,7 +403,7 @@ The "buy" subcommand includes 5 checks:
 ```
 ➜  superpy git:(main) ✗ python super.py buy apple 01-03-2022 1.0 2022-03-10 100
 usage: python super.py buy [-h] product date price expiration count
-python super.py buy: error: argument date: 01-03-2022 - should be an existing date in the format YYYY-MM-DD.
+python super.py buy: error: argument date: 01-03-2022 - should be an existing date in the format YYYY-MM-DD
 ➜  superpy git:(main) ✗
 ```
 
@@ -390,7 +412,7 @@ python super.py buy: error: argument date: 01-03-2022 - should be an existing da
 ```
 ➜  superpy git:(main) ✗ python super.py buy apple 2022-02-30 1.0 2022-03-10 100
 usage: python super.py buy [-h] product date price expiration count
-python super.py buy: error: argument date: 2022-02-30 - should be an existing date in the format YYYY-MM-DD.
+python super.py buy: error: argument date: 2022-02-30 - should be an existing date in the format YYYY-MM-DD
 ➜  superpy git:(main) ✗
 ```
 
@@ -398,11 +420,11 @@ python super.py buy: error: argument date: 2022-02-30 - should be an existing da
 
 ```
 ➜  superpy git:(main) ✗ python super.py buy apple 2022-06-01 1.0 2022-03-10 100
-purchase not recorded - 2022-06-01 is a future date - enter past or current date
+purchase not recorded - 2022-06-01 is a future date - please enter past or current date
 ➜  superpy git:(main) ✗
 ```
 
-4. the price should by a floating point number (type=float converts an entered integer to a float)
+4. the price should by a floating point number (the type keyword for the argument "price" (type=float) converts an entered integer to a float)
 
 5. the count should be an integer:
 
@@ -413,6 +435,10 @@ python super.py buy: error: argument count: invalid int value: '100.0'
 ➜  superpy git:(main) ✗
 ```
 
+**Idea:** Add type=singular to the "product" argument
+
+It would be a good idea to add a type conversion for the product name to prevent doubles like "banana" and "banana's" ending up in the product list. For more details see the docstring in functions.py at def singular().
+
 ### **- sell**
 
 Subcommand to record a sale in sales.csv.
@@ -422,7 +448,7 @@ Sell() takes four positional arguments: product, date, price and count.
 To execute "sell", enter 'python super.py sell \<product\> \<date\> \<price\> \<count\>':
 
 ```
-➜  superpy git:(main) ✗ python super.py sell apple 2022-03-01 0.5 50
+➜  superpy git:(main) ✗ python super.py sell banana 2022-03-01 0.5 50
 sale recorded in sales.csv
 ➜  superpy git:(main) ✗
 ```
@@ -431,7 +457,8 @@ The sale data is now appended to sales.csv:
 
 ```
 product,date,price,count
-apple,2022-03-01,0.5,50
+apple,2022-03-27,0.5,50
+banana,2022-03-01,0.5,50
 ```
 
 The "sell" subcommand includes the same 5 checks as the "buy" subcommand (with check 3 applying to the sale date).
@@ -439,7 +466,12 @@ The "sell" subcommand includes the same 5 checks as the "buy" subcommand (with c
 It also includes a check on sufficient stock:
 
 ```
-➜  superpy git:(main) ✗ python super.py sell apple 2022-03-01 0.5 700
-sale not recorded - can't sell 700 with 350 in stock
+➜  superpy git:(main) ✗ python super.py sell apple 2022-03-01 0.5 50
+Apple in stock on 2022-03-01: 0.
+Sale not recorded - can't sell 50 with 0 in stock.
 ➜  superpy git:(main) ✗
 ```
+
+**Idea:** Add type=singular to the "product" argument
+
+It would be a good idea to add a type conversion for the product name to prevent doubles like "banana" and "banana's" ending up in the product list. For more details see the docstring in functions.py at def singular().

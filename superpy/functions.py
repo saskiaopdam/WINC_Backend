@@ -5,17 +5,18 @@ from datetime import datetime, date, timedelta
 from time import strptime
 from calendar import monthrange
 import xlsxwriter
+from beautifultable import BeautifulTable
 
 
 # Subcommand functions
 def today(args):
     today = date.today()
-    print(today)
+    print(f"Today: {today}")
 
 
 def yesterday(args):
     yesterday = date.today() - timedelta(1)
-    print(yesterday)
+    print(f"Yesterday: {yesterday}")
 
 
 def days_ago(args):
@@ -30,7 +31,7 @@ def days_ago(args):
         # calculate this result for the date n days ago
         if result == "revenue":
             revenue = day_result("sales.csv", past_date)
-            print("Your last calculation was revenue.")
+            print("Last calculation: revenue.")
             print(f"Revenue {days_ago} day ago ({past_date})):") if days_ago == 1 else print(
                 f"Revenue {days_ago} days ago ({past_date}):")
             print(revenue)
@@ -38,13 +39,14 @@ def days_ago(args):
             revenue = day_result("sales.csv", past_date)
             cost = day_result("purchases.csv", past_date)
             profit = revenue - cost
-            print("Your last calculation was profit.")
+            print("Last calculation: profit.")
             print(f"Profit {days_ago} day ago ({past_date}):") if days_ago == 1 else print(
                 f"Profit {days_ago} days ago ({past_date}):")
             print(profit)
+
         # if no result (revenue or profit) has been calculated so far, just print the past date
         if not result:
-            print(past_date)
+            print(f"{days_ago} days ago: {past_date}")
 
 
 # helper function for products()
@@ -66,7 +68,7 @@ def products(args):
     no_products = len(offered_products) == 0
 
     if no_products:
-        print("no products")
+        print("no products offered")
     else:
         if args.csv:
             # export to csv file
@@ -74,6 +76,7 @@ def products(args):
 
             with open(filename, 'w') as csvfile:
                 writer = csv.writer(csvfile)
+                writer.writerow(["product"])
                 for product in offered_products:
                     writer.writerow([product])
 
@@ -87,20 +90,20 @@ def products(args):
             # add a bold format
             bold = workbook.add_format({'bold': True})
 
-            # data
+            # define data
             products = ()
 
             for product in offered_products:
                 products = products + (product,)
 
-            # # start from first cell
+            # start from first cell
             row = 0
             col = 0
 
             # write headers
-            worksheet.write(row, 0, 'offered products', bold)
+            worksheet.write(row, 0, 'product', bold)
 
-            # start from first cell
+            # go to second row
             row = 1
             col = 0
 
@@ -114,7 +117,13 @@ def products(args):
             print("offered products exported to products.xlsx")
 
         else:
-            print("\n".join(offered_products))
+            table = BeautifulTable()
+            for product in offered_products:
+                table.rows.append([product])
+            table.columns.header = ["product"]
+            table.columns.alignment["product"] = BeautifulTable.ALIGN_LEFT
+            table.set_style(BeautifulTable.STYLE_DOTTED)
+            print(table)
 
 
 # helper function for stock() and sell()
@@ -159,9 +168,10 @@ def stock(args):
 
             with open(filename, 'w') as csvfile:
                 writer = csv.writer(csvfile)
+                writer.writerow(["product", "stock"])
                 for product in offered_products:
-                    amount = product_stock(product, today)
-                    writer.writerow([product, amount])
+                    stock = product_stock(product, today)
+                    writer.writerow([product, stock])
 
             print("current stock exported to stock.csv")
 
@@ -173,27 +183,27 @@ def stock(args):
             # add a bold format
             bold = workbook.add_format({'bold': True})
 
-            # data
-            stock = ()
+            # define data
+            total_stock = ()
 
             for product in offered_products:
-                amount = product_stock(product, today)
-                stock = stock + ([product, amount],)
+                stock = product_stock(product, today)
+                total_stock = total_stock + ([product, stock],)
 
-            # # start from first cell
+            # start from first cell
             row = 0
             col = 0
 
             # write headers
-            worksheet.write(row, 0, 'product', bold)
-            worksheet.write(row, 1, 'in stock', bold)
+            worksheet.write(row, col, 'product', bold)
+            worksheet.write(row, col + 1, 'stock', bold)
 
-            # start from first cell
+            # go to second row
             row = 1
             col = 0
 
             # write data out row by row
-            for product, amount in (stock):
+            for product, amount in (total_stock):
                 worksheet.write(row, col,     product)
                 worksheet.write(row, col + 1, amount)
                 row += 1
@@ -203,9 +213,16 @@ def stock(args):
             print("current stock exported to stock.xlsx")
 
         else:
+            table = BeautifulTable()
             for product in offered_products:
                 stock = product_stock(product, today)
-                print(f"{product}: {stock}")
+                table.rows.append([product, stock])
+            table.columns.header = ["product", "stock"]
+            table.columns.alignment["product"] = BeautifulTable.ALIGN_LEFT
+            table.columns.alignment["stock"] = BeautifulTable.ALIGN_RIGHT
+            table.columns.padding_left["stock"] = 5
+            table.set_style(BeautifulTable.STYLE_DOTTED)
+            print(table)
 
 
 # helper function for result()
@@ -305,7 +322,7 @@ def buy(args):
     if args.date > date.today():
         purchase_date = args.date.strftime("%Y-%m-%d")
         print(
-            f"purchase not recorded - {purchase_date} is a future date - enter past or current date")
+            f"purchase not recorded - {purchase_date} is a future date - please enter past or current date")
 
     else:
         # append data to csv file
@@ -331,13 +348,14 @@ def sell(args):
     if args.date > date.today():
         sale_date = args.date.strftime("%Y-%m-%d")
         print(
-            f"sale not recorded - {sale_date} is a future date - enter past or current date")
+            f"sale not recorded - {sale_date} is a future date - please enter past or current date")
 
     else:
-        # exclude buying more than on stock
+        # exclude selling more than is in stock on the selling date
         if stock < count:
+            print(f"{product.capitalize()} in stock on {date}: {stock}.")
             print(
-                f"sale not recorded - can't sell {count} with {stock} in stock")
+                f"Sale not recorded - can't sell {count} with {stock} in stock.")
 
         else:
             # append data to csv file
@@ -364,7 +382,7 @@ def valid_month(date_string):
 
 
 def valid_date(date_string):
-    # called from "buy" - type=valid_date
+    # called from "buy" and "sell" - type=valid_date
 
     # make sure the entered date has the YYYY-MM-DD format
     # make sure the entered date is an existing date
@@ -380,25 +398,27 @@ def valid_date(date_string):
     try:
         return datetime.strptime(date_string, "%Y-%m-%d").date()
     except ValueError:
-        msg = f"{date_string} - should be an existing date in the format YYYY-MM-DD.".format(
+        msg = f"{date_string} - should be an existing date in the format YYYY-MM-DD".format(
             date_string)
         raise argparse.ArgumentTypeError(msg)
 
 
 # idea: finish the function singular():
 def singular(product_name):
-    # called from "buy" - type=singular
+    # called from "buy" and "sell" - type=singular
+
     # make sure the entered product name is singular, not plural
     """
-    This will prevent names like "apple" and "apples" being recorded as purchases of a different product in purchases.csv.
+    This will prevent names like "apple" and "apples" being recorded as purchases / sales of a different product in purchases.csv / sales.csv.
 
-    Three subcommands use the records in purchases.csv to make their calculations:
+    Three subcommands use the records in purchases.csv and sales.csv to make calculations on specific products:
 
     - "products"
     - "stock"
     - "sell"
 
     For them to work correctly, it's important that doubles are excluded.
+    Otherwise reports on products and stock will include "apple" as well as "apples" as different products, while in fact they are the same. The sell() function checks how much of the specified product is in stock. It could calculate a lower amount when searching for "apple" while "apples" are also in stock.
     """
     # try - except block like the one in valid_date()
     # return singular noun
