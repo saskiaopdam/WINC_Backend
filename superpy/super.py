@@ -11,7 +11,7 @@ __human_name__ = "superpy"
 def main():
 
     # Import subcommand functions
-    from functions import today, yesterday, days_ago, products, stock, revenue, profit, buy, sell, valid_month, valid_date
+    from functions import today, yesterday, advance_today, products, stock, revenue, profit, buy, sell, valid_month, valid_date, lowercase
 
     # Create the top-level parser
     parser = argparse.ArgumentParser(
@@ -29,11 +29,11 @@ def main():
         "yesterday", description="show yesterday's date and exit", help="show yesterday's date and exit")
     parser_yesterday.set_defaults(func=yesterday)
 
-    # Create the parser for the "days_ago" subcommand
-    parser_days_ago = subparsers.add_parser(
-        "days_ago", description="go to the date n days ago and exit", help="go to the date n days ago and exit")
-    parser_days_ago.add_argument("days", type=int, help="number of days")
-    parser_days_ago.set_defaults(func=days_ago)
+    # Create the parser for the "advance_today" subcommand
+    parser_advance_today = subparsers.add_parser(
+        "advance_today", description="advance 'today' with n days and exit", help="advance 'today' with n days and exit")
+    parser_advance_today.add_argument("days", type=int, help="number of days")
+    parser_advance_today.set_defaults(func=advance_today)
 
     # Create the parser for the "products" subcommand
     parser_products = subparsers.add_parser(
@@ -81,7 +81,8 @@ def main():
     parser_buy = subparsers.add_parser(
         "buy", description="record a purchase in purchases.csv and exit", help="record a purchase in purchases.csv and exit")
     # idea: add type=singular to the "product" argument
-    parser_buy.add_argument("product", help="product name - singular noun")
+    parser_buy.add_argument("product", type=lowercase,
+                            help="product name - singular noun")
     parser_buy.add_argument("date", type=valid_date,
                             help="purchase date - YYYY-MM-DD")
     parser_buy.add_argument("price", type=float,
@@ -95,7 +96,8 @@ def main():
     parser_sell = subparsers.add_parser(
         "sell", description="record a sale in sales.csv and exit", help="record a sale in sales.csv and exit")
     # idea: add type=singular to the "product" argument
-    parser_sell.add_argument("product", help="product name - singular noun")
+    parser_sell.add_argument("product", type=lowercase,
+                             help="product name - singular noun")
     parser_sell.add_argument("date", type=valid_date,
                              help="sale date - YYYY-MM-DD")
     parser_sell.add_argument("price", type=float,

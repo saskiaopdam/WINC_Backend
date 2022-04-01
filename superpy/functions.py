@@ -9,44 +9,52 @@ from beautifultable import BeautifulTable
 
 
 # Subcommand functions
+
+# helper function for today()
+def read_today_str():
+    with open('today.txt', 'r') as textfile:
+        today = textfile.read()
+    return today
+
+
+# helper function for yesterday() and advance_today()
+def get_today_obj():
+    today = read_today_str()
+    today_obj = datetime.strptime(today, "%Y-%m-%d").date()
+    return today_obj
+
+
 def today(args):
-    today = date.today()
-    print(f"Today: {today}")
+    today = read_today_str()
+    if today == "":
+        # save the current date in "today.txt"
+        with open('today.txt', 'w') as textfile:
+            current_date = date.today().strftime("%Y-%m-%d")
+            textfile.write(current_date)
+
+        print(f"Today: {current_date}")
+    else:
+        print(f"Today: {today}")
 
 
 def yesterday(args):
-    yesterday = date.today() - timedelta(1)
+    today = get_today_obj()
+    yesterday = today - timedelta(1)
     print(f"Yesterday: {yesterday}")
 
 
-def days_ago(args):
-    today = date.today()
-    days_ago = args.days
-    past_date = today - timedelta(days_ago)
+def advance_today(args):
+    today = get_today_obj()
+    days = args.days
+    new_today = today - timedelta(days)
 
-    # read "result.txt" to see which result was calculated recently (revenue or profit)
-    with open("result.txt", 'r') as textfile:
-        result = textfile.read()
+    # save the new today in "today.txt"
+    with open('today.txt', 'w') as textfile:
+        new_today_str = new_today.strftime("%Y-%m-%d")
+        textfile.write(new_today_str)
 
-        # calculate this result for the date n days ago
-        if result == "revenue":
-            revenue = day_result("sales.csv", past_date)
-            print("Last calculation: revenue.")
-            print(f"Revenue {days_ago} day ago ({past_date})):") if days_ago == 1 else print(
-                f"Revenue {days_ago} days ago ({past_date}):")
-            print(revenue)
-        if result == "profit":
-            revenue = day_result("sales.csv", past_date)
-            cost = day_result("purchases.csv", past_date)
-            profit = revenue - cost
-            print("Last calculation: profit.")
-            print(f"Profit {days_ago} day ago ({past_date}):") if days_ago == 1 else print(
-                f"Profit {days_ago} days ago ({past_date}):")
-            print(profit)
-
-        # if no result (revenue or profit) has been calculated so far, just print the past date
-        if not result:
-            print(f"{days_ago} days ago: {past_date}")
+    print(
+        f"Today is advanced with {days} days from {today} to {new_today_str}.")
 
 
 # helper function for products()
@@ -157,7 +165,7 @@ def stock(args):
     offered_products = product_list()
     no_products = len(offered_products) == 0
 
-    today = date.today()
+    today = get_today_obj()
 
     if no_products:
         print("no products to calculate stock")
@@ -213,6 +221,7 @@ def stock(args):
             print("current stock exported to stock.xlsx")
 
         else:
+            print(f"Stock today ({today}):")
             table = BeautifulTable()
             for product in offered_products:
                 stock = product_stock(product, today)
@@ -243,7 +252,7 @@ def period_result(filename, period):
         result = 0
         for row in reader:
             if row['date'] >= start_date and row['date'] <= end_date:
-                result += float(row['price'])
+                result += float(row['price'])*float(row['count'])
         return result
 
 
@@ -255,7 +264,7 @@ def day_result(filename, day):
         result = 0
         for row in reader:
             if row['date'] == str(day):
-                result += float(row['price'])
+                result += float(row['price'])*float(row['count'])
         return result
 
 
@@ -269,7 +278,7 @@ def result(args):
             f"please enter an option - see 'python super.py {subcommand} -h'")
     else:
         if args.today:
-            today = date.today()
+            today = read_today_str()
             revenue = day_result("sales.csv", today)
             cost = day_result("purchases.csv", today)
             profit = revenue - cost
@@ -280,7 +289,9 @@ def result(args):
                 print(f"Profit today ({today}):")
                 print(profit)
         if args.yesterday:
-            yesterday = date.today() - timedelta(1)
+            today = get_today_obj()
+            yesterday = today - timedelta(1)
+            # yesterday = date.today() - timedelta(1)
             revenue = day_result("sales.csv", yesterday)
             cost = day_result("purchases.csv", yesterday)
             profit = revenue - cost
@@ -302,11 +313,11 @@ def result(args):
                 print(f"Profit {period}:")
                 print(profit)
 
-        # write "revenue" or "profit" to text file for days_ago() to read
-        filename = "result.txt"
+        # # write "revenue" or "profit" to text file for days_ago() to read
+        # filename = "result.txt"
 
-        with open(filename, 'w') as textfile:
-            textfile.write(subcommand)
+        # with open(filename, 'w') as textfile:
+        #     textfile.write(subcommand)
 
 
 def revenue(args):
@@ -323,6 +334,12 @@ def buy(args):
         purchase_date = args.date.strftime("%Y-%m-%d")
         print(
             f"purchase not recorded - {purchase_date} is a future date - please enter past or current date")
+
+    # exclude past or current expiration date
+    if args.expiration <= date.today():
+        expiration_date = args.date.strftime("%Y-%m-%d")
+        print(
+            f"purchase not recorded - {expiration_date} is a past or current date - please enter a future date")
 
     else:
         # append data to csv file
@@ -401,6 +418,10 @@ def valid_date(date_string):
         msg = f"{date_string} - should be an existing date in the format YYYY-MM-DD".format(
             date_string)
         raise argparse.ArgumentTypeError(msg)
+
+
+def lowercase(string):
+    return string.lower()
 
 
 # idea: finish the function singular():
