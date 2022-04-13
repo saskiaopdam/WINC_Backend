@@ -1,0 +1,12 @@
+{% extends "base.html" %} {% block content %}
+<!-- Your solution here. -->
+
+{% if session.username %}
+<h2>Dashboard</h2>
+<h3>User: {{ session.username }}</h3>
+<p>Hi {{ session.username }}, you have succesfully logged in.</p>
+
+<form action="" method="post">
+  <input type="submit" value="Logout" />
+</form>
+{% endif %} {% endblock content %}
