@@ -1,7 +1,6 @@
 import peewee
 
-# db = peewee.SqliteDatabase(":memory:")
-db = peewee.SqliteDatabase("app.db")
+db = peewee.SqliteDatabase(":memory:")
 
 
 class Ingredient(peewee.Model):
@@ -28,7 +27,7 @@ class Dish(peewee.Model):
     name = peewee.CharField()
     served_at = peewee.ForeignKeyField(Restaurant)
     price_in_cents = peewee.FloatField()
-    ingredients = peewee.ManyToManyField(Ingredient, backref='ingredients')
+    ingredients = peewee.ManyToManyField(Ingredient)
 
     class Meta:
         database = db
@@ -44,9 +43,3 @@ class Rating(peewee.Model):
 
 
 DishIngredient = Dish.ingredients.get_through_model()
-
-
-def create_tables():
-    with db:
-        db.create_tables(
-            [Ingredient, Restaurant, Dish, Rating, DishIngredient])

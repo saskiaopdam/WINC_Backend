@@ -11,8 +11,11 @@ def cheapest_dish() -> models.Dish:
 
     Query the database to retrieve the cheapest dish available
     """
-    result = models.Dish.select().order_by(models.Dish.price_in_cents).get()
-    return result
+    # query = models.Dish.select().order_by(models.Dish.price_in_cents).get()
+    # return query
+
+    # oplossing winc:
+    return models.Dish.select().order_by(models.Dish.price_in_cents).first()
 
 
 def vegetarian_dishes() -> List[models.Dish]:
@@ -21,11 +24,14 @@ def vegetarian_dishes() -> List[models.Dish]:
     Query the database to return a list of dishes that contain only
     vegetarian ingredients.
     """
-    vegeterian = models.Ingredient.select().where(
-        models.Ingredient.is_vegeterian == True)
-    for dish in vegeterian.dishes:
-        List.add(dish)
-        return List
+    # query = models.Dish.select().join(models.DishIngredient).join(
+    #     models.Ingredient).where(models.Ingredient.is_vegetarian == True)
+
+    # oplossing winc:
+    return [
+        dish
+        for dish in models.Dish.select()
+        if all(i.is_vegetarian for i in dish.ingredients)]
 
 
 def best_average_rating() -> models.Restaurant:
@@ -34,15 +40,31 @@ def best_average_rating() -> models.Restaurant:
     Query the database to retrieve the restaurant that has the highest
     rating on average
     """
+    # bekijk nogmaals later
+
+    # oplossing winc:
+    return (
+        models.Restaurant.select(
+            models.Restaurant, peewee.fn.AVG(
+                models.Rating.rating).alias("average")
+        )
+        .join(models.Rating)
+        .group_by(models.Restaurant)
+        .order_by(peewee.fn.AVG(models.Rating.rating).desc())
+        .first())
 
 
 def add_rating_to_restaurant() -> None:
-    # """After visiting a restaurant, you want to leave a rating
+    """After visiting a restaurant, you want to leave a rating
 
-    # Select the first restaurant in the dataset and add a rating
-    # """
-    result = models.Rating.create(restaurant=1, rating=5, comment="exquisite")
-    return result
+    Select the first restaurant in the dataset and add a rating
+    """
+    # query = models.Rating.create(restaurant=1, rating=5, comment='excellent')
+    # return query
+
+    # oplossing winc:
+    restaurant = models.Restaurant.get_by_id(1)
+    models.Rating.create(restaurant=restaurant, rating=5, comment=None)
 
 
 def dinner_date_possible() -> List[models.Restaurant]:
@@ -51,9 +73,24 @@ def dinner_date_possible() -> List[models.Restaurant]:
     You want to eat at around 19:00 and your date is vegan.
     Query a list of restaurants that account for these constraints.
     """
-    # result = models.Restaurant.select().where(
-    #     models.Restaurant.opening_time > 18.00)
-    # return result
+    # bekijk nogmaals later
+
+    # oplossing winc:
+    restaurants = (
+        models.Restaurant.select()
+        .where(models.Restaurant.opening_time <= "19:00")
+        .where(models.Restaurant.closing_time >= "19:00")
+    )
+    return [
+        restaurant
+        for restaurant in restaurants
+        if any(
+            [
+                all([i.is_vegan for i in dish.ingredients])
+                for dish in restaurant.dish_set.select()
+            ]
+        )
+    ]
 
 
 def add_dish_to_menu() -> models.Dish:
@@ -65,12 +102,23 @@ def add_dish_to_menu() -> models.Dish:
     new ingredients however.
     Return your newly created dish
     """
-    newDish = models.Dish.create(
-        name='cheesy bites', served_at=1, price_in_cents=800.0)
-
-    cheese = models.Ingredient.get(models.Ingredient.name == 'cheese')
-    newDish.ingredients.add(cheese)
+    # newDish = models.Dish.create(
+    #     name='cheesy bites', served_at=1, price_in_cents=800.0)
     # newDish.ingredients.add(models.Ingredient.get(
     #     models.Ingredient.name == 'cheese'))
+    # return newDish
 
+    # oplossing winc:
+    restaurant = models.Restaurant.get_by_id(1)
+    cheese, _ = models.Ingredient.get_or_create(
+        name='cheese',
+        defaults={
+            "is_vegetarian": True,
+            "is_vegan": False, "is_glutenfree": True,
+        },
+    )
+
+    newDish = models.Dish.create(
+        name='cheesy bites', served_at=restaurant, price_in_cents=800)
+    newDish.ingredients.add(cheese)
     return newDish
